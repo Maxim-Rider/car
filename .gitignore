@@ -1,129 +1,148 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+import pygame
+pygame.init() 
 
-# C extensions
-*.so
+WIN_WIDTH = 800 
+WIN_HEIGHT = 600 
+WHITE = (255, 255, 255) 
+BLACK = (0, 0, 0) 
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+class Rocket: 
+# ширина и высота у всех 
+# экземпляров-ракет будут одинаковы 
+    width_rocket = 20 
+    height_rocket = 50
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+    def __init__(self, surface, color): 
+        """Конструктору необходимо передать поверхность, по которой будет летать ракета и цвет самой ракеты""" 
+        self.surf = surface 
+        self.color = color
+# Методы поверхности get_width() и get_height() возвращают ее # размеры. 
+# Координаты верхнего левого угла ракеты устанавливаются так, 
+# чтобы ракета летела ровно по центру поверхности по горизонтали 
+# и появлялась снизу. 
+        self.x = surface.get_width()//2 - Rocket.width_rocket//2 
+        self.y = surface.get_height() 
+    def fly(self): 
+        """Вызов метода fly() поднимает ракету на 3 пикселя. Если ракета скрывается вверху, она снова появится снизу""" 
+        pygame.draw.rect(self.surf, self.color, (self.x, self.y, Rocket.width_rocket, Rocket.height_rocket)) 
+        self.y -= 3 
+        # Если координата y ракеты уходит за -50, то значит она # полностью скрылась вверху. 
+        if self.y < -Rocket.height_rocket: 
+            # Поэтому перебрасываем ракету под нижнюю границу окна. 
+            self.y = WIN_HEIGHT
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+sc=pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT)) # левая белая поверхность, равная половине окна 
+surf_left = pygame.Surface((WIN_WIDTH//2, WIN_HEIGHT)) 
+surf_left.fill(WHITE) # правая черная поверхность, равная другой половине окна 
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
+surf_right = pygame.Surface((WIN_WIDTH//2, WIN_HEIGHT)) # размещаем поверхности на главной, указывая координаты # их верхних левых углов 
 
-# Translations
-*.mo
-*.pot
+sc.blit(surf_left, (0, 0)) 
+sc.blit(surf_right, (WIN_WIDTH//2, 0)) # создаем черную ракету для левой поверхности # и белую - для правой 
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+rocket_left = Rocket(surf_left, BLACK) 
+rocket_right = Rocket(surf_right, WHITE) # какая половина активна, до первого клика - никакая 
 
-# Flask stuff:
-instance/
-.webassets-cache
+active_left = False 
+active_right = False 
+done = True 
+while done: 
+    for i in pygame.event.get(): 
+        if i.type == pygame.QUIT: 
+            done = False 
+        elif i.type == pygame.MOUSEBUTTONUP: # если координата X клика меньше половины окна, # т. е. клик произошел в левой половине ... 
+            if i.pos[0] < WIN_WIDTH//2: 
+                # то активируем левую, отключаем правую 
+                active_left = True 
+                active_right = False 
+            elif i.pos[0] > WIN_WIDTH//2: 
+                # иначе - наоборот 
+                active_right = True 
+                active_left = False 
+    if active_left: # Если активна левая поверхность, # то заливаем только ее цветом, 
+        surf_left.fill(WHITE) # поднимаем ракету, 
+        rocket_left.fly() # заново отрисовываем левую поверхность на главной. 
+        sc.blit(surf_left, (0, 0)) 
+    elif active_right: # Если активна правая -> аналогично 
+        surf_right.fill(BLACK) 
+        rocket_right.fly() 
+        sc.blit(surf_right, (WIN_WIDTH//2, 0)) 
+    pygame.display.update() 
+    pygame.time.delay(20)
+pygame.quit()
 
-# Scrapy stuff:
-.scrapy
+#=================================== car
+import pygame
+pygame.init() 
 
-# Sphinx documentation
-docs/_build/
+WIN_WIDTH = 800 
+WIN_HEIGHT = 600 
+GREEN = (0, 128, 0)
+DARKGRAY = (169, 169, 169)
+WHITE = (255, 255, 255) 
+BLACK = (0, 0, 0) 
 
-# PyBuilder
-target/
+class Car: 
+# ширина и высота у всех 
+# экземпляров-ракет будут одинаковы 
+    width_car = 50
+    height_car = 20
 
-# Jupyter Notebook
-.ipynb_checkpoints
+    def __init__(self, surface, color): 
+        """Конструктору необходимо передать поверхность, по которой будет летать ракета и цвет самой ракеты""" 
+        self.surf = surface 
+        self.color = color
+# Методы поверхности get_width() и get_height() возвращают ее # размеры. 
+# Координаты верхнего левого угла ракеты устанавливаются так, 
+# чтобы ракета летела ровно по центру поверхности по горизонтали 
+# и появлялась снизу. 
+        self.y = surface.get_width()//2 - Car.width_car//2 
+        self.x = surface.get_height() 
+    def fly(self): 
+        """Вызов метода fly() поднимает ракету на 3 пикселя. Если ракета скрывается вверху, она снова появится снизу""" 
+        pygame.draw.rect(self.surf, self.color, (self.y, self.x, Car.width_car, Car.height_car)) 
+        self.x -= 3 
+        # Если координата y ракеты уходит за -50, то значит она # полностью скрылась вверху. 
+        if self.x < -Car.height_car: 
+            # Поэтому перебрасываем ракету под нижнюю границу окна. 
+            self.x = WIN_WIDTH
 
-# IPython
-profile_default/
-ipython_config.py
+sc=pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT)) # левая белая поверхность, равная половине окна 
+surf_left = pygame.Surface((WIN_WIDTH, WIN_HEIGHT//2)) 
+surf_left.fill(GREEN) # правая черная поверхность, равная другой половине окна 
 
-# pyenv
-.python-version
+surf_right = pygame.Surface((WIN_WIDTH, WIN_HEIGHT)) # размещаем поверхности на главной, указывая координаты # их верхних левых углов 
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
+sc.blit(surf_left, (0, 0)) 
+sc.blit(surf_right, (WIN_HEIGHT//2, 0)) # создаем черную ракету для левой поверхности # и белую - для правой 
 
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
+car_left = Car(surf_left, BLACK) 
+car_right = Car(surf_right, WHITE) # какая половина активна, до первого клика - никакая 
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
+active_left = False 
+active_right = False 
+done = True 
+while done: 
+    for i in pygame.event.get(): 
+        if i.type == pygame.QUIT: 
+            done = False 
+        elif i.type == pygame.MOUSEBUTTONUP: # если координата X клика меньше половины окна, # т. е. клик произошел в левой половине ... 
+            if i.pos[0] < WIN_HEIGHT//2: 
+                # то активируем левую, отключаем правую 
+                active_left = True 
+                active_right = False 
+            elif i.pos[0] > WIN_HEIGHT//2: 
+                # иначе - наоборот 
+                active_right = True 
+                active_left = False 
+    if active_left: # Если активна левая поверхность, # то заливаем только ее цветом, 
+        surf_left.fill(GREEN) # поднимаем ракету, 
+        car_left.fly() # заново отрисовываем левую поверхность на главной. 
+        sc.blit(surf_left, (0, 0)) 
+    elif active_right: # Если активна правая -> аналогично 
+        surf_right.fill(DARKGRAY) 
+        car_right.fly() 
+        sc.blit(surf_right, (WIN_HEIGHT//2, 0)) 
+    pygame.display.update() 
+    pygame.time.delay(20)
+pygame.quit()
